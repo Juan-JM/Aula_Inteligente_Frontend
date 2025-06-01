@@ -25,3 +25,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+irrev_01.txt
+irrev_03.txt
+irrev_02.txt
