@@ -1,0 +1,1605 @@
+# Aula Inteligente - Documentación Completa de API
+
+## Configuración Base
+- **Base URL**: `http://127.0.0.1:8000`
+- **Autenticación**: JWT Bearer Token
+- **Content-Type**: `application/json`
+
+---
+
+## 1. AUTENTICACIÓN (`/api/auth/`)
+
+### 1.1 Login (Público)
+```
+POST /api/auth/login/
+```
+
+**Headers:**
+```json
+{
+  "Content-Type": "application/json"
+}
+```
+
+**Request Body:**
+```json
+{
+  "username": "admin",
+  "password": "admin123"
+}
+```
+
+**Response (200):**
+```json
+{
+  "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+  "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+  "user": {
+    "id": 1,
+    "username": "admin",
+    "email": "admin@example.com",
+    "first_name": "Admin",
+    "last_name": "User",
+    "is_active": true,
+    "groups": ["Administrador"],
+    "date_joined": "2024-01-01T00:00:00Z"
+  }
+}
+```
+
+**Response (400):**
+```json
+{
+  "non_field_errors": ["Credenciales inválidas"]
+}
+```
+
+### 1.2 Refresh Token (Público)
+```
+POST /api/auth/refresh/
+```
+
+**Request Body:**
+```json
+{
+  "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+}
+```
+
+**Response (200):**
+```json
+{
+  "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+}
+```
+
+### 1.3 Register (Solo Administradores)
+```
+POST /api/auth/register/
+```
+
+**Headers:**
+```json
+{
+  "Content-Type": "application/json",
+  "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+}
+```
+
+**Request Body:**
+```json
+{
+  "username": "nuevo_docente",
+  "email": "docente@ejemplo.com",
+  "first_name": "Juan",
+  "last_name": "Pérez",
+  "password": "password123",
+  "password_confirm": "password123",
+  "grupo": "Docente"
+}
+```
+
+**Response (201):**
+```json
+{
+  "id": 2,
+  "username": "nuevo_docente",
+  "email": "docente@ejemplo.com",
+  "first_name": "Juan",
+  "last_name": "Pérez",
+  "is_active": true,
+  "groups": ["Docente"],
+  "date_joined": "2024-01-01T10:30:00Z"
+}
+```
+
+### 1.4 Profile
+```
+GET /api/auth/profile/
+```
+
+**Headers:**
+```json
+{
+  "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+}
+```
+
+**Response (200):**
+```json
+{
+  "id": 1,
+  "username": "admin",
+  "email": "admin@example.com",
+  "first_name": "Admin",
+  "last_name": "User",
+  "is_active": true,
+  "groups": ["Administrador"],
+  "date_joined": "2024-01-01T00:00:00Z"
+}
+```
+
+### 1.5 Logout
+```
+POST /api/auth/logout/
+```
+
+**Headers:**
+```json
+{
+  "Content-Type": "application/json",
+  "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+}
+```
+
+**Request Body:**
+```json
+{
+  "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+}
+```
+
+**Response (200):**
+```json
+{
+  "message": "Sesión cerrada exitosamente"
+}
+```
+
+---
+
+## 2. CURSOS (`/api/courses/`)
+
+### 2.1 Listar Cursos
+```
+GET /api/courses/cursos/
+```
+
+**Query Parameters:**
+- `nivel`: Filtrar por nivel (ej: "PRIMARIA", "SECUNDARIA")
+- `gestion`: Filtrar por año (ej: 2024)
+- `paralelo`: Filtrar por paralelo (ej: "A", "B")
+- `search`: Buscar por nombre o código
+- `ordering`: Ordenar por campo (ej: "-gestion", "nivel")
+- `page`: Número de página para paginación
+
+**Headers:**
+```json
+{
+  "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+}
+```
+
+**Response (200):**
+```json
+{
+  "count": 10,
+  "next": "http://127.0.0.1:8000/api/courses/cursos/?page=2",
+  "previous": null,
+  "results": [
+    {
+      "codigo": "6TO-A-2024",
+      "nombre": "Sexto A",
+      "nivel": "PRIMARIA",
+      "paralelo": "A",
+      "gestion": 2024,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z",
+      "is_active": true
+    }
+  ]
+}
+```
+
+### 2.2 Crear Curso (Solo Administradores)
+```
+POST /api/courses/cursos/
+```
+
+**Request Body:**
+```json
+{
+  "codigo": "7MO-B-2024",
+  "nombre": "Séptimo B",
+  "nivel": "PRIMARIA",
+  "paralelo": "B",
+  "gestion": 2024
+}
+```
+
+**Response (201):**
+```json
+{
+  "codigo": "7MO-B-2024",
+  "nombre": "Séptimo B",
+  "nivel": "PRIMARIA",
+  "paralelo": "B",
+  "gestion": 2024,
+  "created_at": "2024-01-01T10:30:00Z",
+  "updated_at": "2024-01-01T10:30:00Z",
+  "is_active": true
+}
+```
+
+### 2.3 Obtener Curso Específico
+```
+GET /api/courses/cursos/{codigo}/
+```
+
+**Response (200):**
+```json
+{
+  "codigo": "6TO-A-2024",
+  "nombre": "Sexto A",
+  "nivel": "PRIMARIA",
+  "paralelo": "A",
+  "gestion": 2024,
+  "created_at": "2024-01-01T00:00:00Z",
+  "updated_at": "2024-01-01T00:00:00Z",
+  "is_active": true
+}
+```
+
+### 2.4 Estudiantes de un Curso
+```
+GET /api/courses/cursos/{codigo}/estudiantes/
+```
+
+**Response (200):**
+```json
+[
+  {
+    "ci": "12345678",
+    "nombre_completo": "Juan Pérez",
+    "email": "juan@ejemplo.com",
+    "fecha_inscripcion": "2024-02-01"
+  }
+]
+```
+
+### 2.5 Listar Períodos
+```
+GET /api/courses/periodos/
+```
+
+**Response (200):**
+```json
+{
+  "count": 4,
+  "results": [
+    {
+      "codigo": "T1-2024",
+      "nombre": "Primer Trimestre 2024",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z",
+      "is_active": true
+    }
+  ]
+}
+```
+
+---
+
+## 3. MATERIAS (`/api/subjects/`)
+
+### 3.1 Listar Materias
+```
+GET /api/subjects/
+```
+
+**Query Parameters:**
+- `search`: Buscar por nombre o código
+- `ordering`: Ordenar por campo
+
+**Response (200):**
+```json
+{
+  "count": 5,
+  "results": [
+    {
+      "codigo": "MAT001",
+      "nombre": "Matemáticas",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z",
+      "is_active": true
+    }
+  ]
+}
+```
+
+### 3.2 Crear Materia (Solo Administradores)
+```
+POST /api/subjects/
+```
+
+**Request Body:**
+```json
+{
+  "codigo": "FIS001",
+  "nombre": "Física"
+}
+```
+
+### 3.3 Obtener Materia Detallada
+```
+GET /api/subjects/{codigo}/
+```
+
+**Response (200):**
+```json
+{
+  "codigo": "MAT001",
+  "nombre": "Matemáticas",
+  "created_at": "2024-01-01T00:00:00Z",
+  "updated_at": "2024-01-01T00:00:00Z",
+  "is_active": true,
+  "docentes_asignados": [
+    {
+      "ci": "87654321",
+      "nombre_completo": "Prof. García",
+      "curso": "6TO-A-2024"
+    }
+  ],
+  "cursos_asignados": [
+    {
+      "codigo": "6TO-A-2024",
+      "nombre": "Sexto A",
+      "nivel": "PRIMARIA",
+      "paralelo": "A",
+      "gestion": 2024
+    }
+  ]
+}
+```
+
+### 3.4 Estudiantes de una Materia
+```
+GET /api/subjects/{codigo}/estudiantes/
+```
+
+**Response (200):**
+```json
+[
+  {
+    "ci": "12345678",
+    "nombre_completo": "Juan Pérez",
+    "email": "juan@ejemplo.com",
+    "curso": "6TO-A-2024",
+    "docente": "Prof. García"
+  }
+]
+```
+
+---
+
+## 4. DOCENTES (`/api/teachers/`)
+
+### 4.1 Listar Docentes
+```
+GET /api/teachers/docentes/
+```
+
+**Query Parameters:**
+- `search`: Buscar por nombre, apellido, CI o email
+- `ordering`: Ordenar por campo
+
+**Response (200):**
+```json
+{
+  "count": 3,
+  "results": [
+    {
+      "ci": "87654321",
+      "nombre": "Carlos",
+      "apellido": "García",
+      "email": "garcia@colegio.com",
+      "telefono": "+59171234567",
+      "fecha_ingreso": "2023-01-15",
+      "usuario_username": "prof_garcia",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z",
+      "is_active": true,
+      "materias_asignadas": [
+        {
+          "materia": "Matemáticas",
+          "curso": "6TO-A-2024",
+          "nivel": "PRIMARIA",
+          "paralelo": "A"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### 4.2 Crear Docente (Solo Administradores)
+```
+POST /api/teachers/docentes/
+```
+
+**Request Body:**
+```json
+{
+  "ci": "11223344",
+  "nombre": "María",
+  "apellido": "López",
+  "email": "lopez@colegio.com",
+  "telefono": "+59171234568",
+  "fecha_ingreso": "2024-01-15",
+  "username": "prof_lopez",
+  "password": "password123"
+}
+```
+
+### 4.3 Asignaciones de un Docente
+```
+GET /api/teachers/docentes/{ci}/asignaciones/
+```
+
+**Response (200):**
+```json
+[
+  {
+    "id": 1,
+    "materia_nombre": "Matemáticas",
+    "curso_nombre": "6TO-A-2024",
+    "codigo_curso": "6TO-A-2024",
+    "codigo_materia": "MAT001",
+    "total_estudiantes": 25,
+    "created_at": "2024-01-01T00:00:00Z"
+  }
+]
+```
+
+### 4.4 Estudiantes de un Docente
+```
+GET /api/teachers/docentes/{ci}/estudiantes/
+```
+
+**Response (200):**
+```json
+[
+  {
+    "ci": "12345678",
+    "nombre_completo": "Juan Pérez",
+    "email": "juan@ejemplo.com",
+    "edad": 12,
+    "curso": "6TO-A-2024",
+    "materia": "Matemáticas"
+  }
+]
+```
+
+### 4.5 Asignaciones Curso-Materia
+```
+GET /api/teachers/asignaciones/
+```
+
+**Query Parameters:**
+- `codigo_curso`: Filtrar por curso
+- `codigo_materia`: Filtrar por materia
+- `ci_docente`: Filtrar por docente
+
+**Response (200):**
+```json
+{
+  "count": 10,
+  "results": [
+    {
+      "id": 1,
+      "codigo_curso": "6TO-A-2024",
+      "codigo_materia": "MAT001",
+      "ci_docente": "87654321",
+      "materia_nombre": "Matemáticas",
+      "curso_nombre": "6TO-A-2024",
+      "docente_nombre": "Carlos García",
+      "created_at": "2024-01-01T00:00:00Z",
+      "is_active": true
+    }
+  ]
+}
+```
+
+### 4.6 Crear Asignación (Solo Administradores)
+```
+POST /api/teachers/asignaciones/
+```
+
+**Request Body:**
+```json
+{
+  "codigo_curso": "6TO-A-2024",
+  "codigo_materia": "MAT001",
+  "ci_docente": "87654321"
+}
+```
+
+---
+
+## 5. ESTUDIANTES (`/api/students/`)
+
+### 5.1 Listar Estudiantes
+```
+GET /api/students/estudiantes/
+```
+
+**Query Parameters:**
+- `search`: Buscar por nombre, apellido, CI o email
+- `ordering`: Ordenar por campo
+
+**Response (200):**
+```json
+{
+  "count": 25,
+  "results": [
+    {
+      "ci": "12345678",
+      "nombre": "Juan",
+      "apellido": "Pérez",
+      "email": "juan@ejemplo.com",
+      "fecha_nacimiento": "2012-05-15",
+      "usuario_username": "juan_perez",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z",
+      "is_active": true,
+      "curso_actual": {
+        "codigo": "6TO-A-2024",
+        "nombre": "6TO-A-2024",
+        "nivel": "PRIMARIA",
+        "paralelo": "A",
+        "gestion": 2024
+      },
+      "tutores": [
+        {
+          "ci": "98765432",
+          "nombre_completo": "Ana Pérez",
+          "parentesco": "MADRE",
+          "telefono": "+59171234569",
+          "email": "ana@ejemplo.com"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### 5.2 Crear Estudiante (Solo Administradores)
+```
+POST /api/students/estudiantes/
+```
+
+**Request Body:**
+```json
+{
+  "ci": "87654321",
+  "nombre": "María",
+  "apellido": "González",
+  "email": "maria@ejemplo.com",
+  "fecha_nacimiento": "2012-08-20",
+  "username": "maria_gonzalez",
+  "password": "password123",
+  "codigo_curso": "6TO-A-2024"
+}
+```
+
+### 5.3 Detalle de Estudiante
+```
+GET /api/students/estudiantes/{ci}/
+```
+
+**Response (200):**
+```json
+{
+  "ci": "12345678",
+  "nombre": "Juan",
+  "apellido": "Pérez",
+  "email": "juan@ejemplo.com",
+  "fecha_nacimiento": "2012-05-15",
+  "created_at": "2024-01-01T00:00:00Z",
+  "updated_at": "2024-01-01T00:00:00Z",
+  "is_active": true,
+  "usuario_info": {
+    "username": "juan_perez",
+    "is_active": true,
+    "last_login": "2024-01-15T10:30:00Z"
+  },
+  "inscripciones": [
+    {
+      "id": 1,
+      "codigo_curso": "6TO-A-2024",
+      "fecha_inscripcion": "2024-02-01",
+      "estado": "ACTIVO",
+      "curso_nombre": "6TO-A-2024"
+    }
+  ],
+  "rendimiento_resumen": {
+    "promedio_general": 85.5,
+    "porcentaje_asistencia": 92.0,
+    "total_notas": 15,
+    "total_clases": 120
+  }
+}
+```
+
+### 5.4 Inscribir Estudiante en Curso
+```
+POST /api/students/estudiantes/{ci}/inscribir_curso/
+```
+
+**Request Body:**
+```json
+{
+  "ci_estudiante": "12345678",
+  "codigo_curso": "7MO-A-2024",
+  "fecha_inscripcion": "2024-02-01"
+}
+```
+
+### 5.5 Dar de Baja Estudiante
+```
+POST /api/students/estudiantes/{ci}/dar_baja/
+```
+
+**Request Body:**
+```json
+{
+  "motivo": "Traslado a otro colegio",
+  "fecha_baja": "2024-06-15"
+}
+```
+
+### 5.6 Rendimiento de Estudiante
+```
+GET /api/students/estudiantes/{ci}/rendimiento/
+```
+
+**Response (200):**
+```json
+{
+  "estudiante": {
+    "ci": "12345678",
+    "nombre": "Juan",
+    "apellido": "Pérez",
+    "email": "juan@ejemplo.com"
+  },
+  "curso_actual": {
+    "codigo": "6TO-A-2024",
+    "nombre": "6TO-A-2024",
+    "nivel": "PRIMARIA",
+    "paralelo": "A",
+    "gestion": 2024
+  },
+  "rendimiento_por_materia": {
+    "Matemáticas": {
+      "materia_codigo": "MAT001",
+      "docente": "Carlos García",
+      "notas": [
+        {
+          "criterio": "Examen Primer Trimestre",
+          "nota": 85.0,
+          "fecha": "2024-03-15"
+        }
+      ],
+      "promedio_notas": 85.0,
+      "porcentaje_asistencia": 95.0,
+      "promedio_participacion": 4.2
+    }
+  }
+}
+```
+
+---
+
+## 6. TUTORES (`/api/tutors/`)
+
+### 6.1 Listar Tutores
+```
+GET /api/tutors/
+```
+
+**Response (200):**
+```json
+{
+  "count": 15,
+  "results": [
+    {
+      "ci": "98765432",
+      "nombre": "Ana",
+      "apellido": "Pérez",
+      "email": "ana@ejemplo.com",
+      "telefono": "+59171234569",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z",
+      "is_active": true,
+      "estudiantes_asignados": [
+        {
+          "ci": "12345678",
+          "nombre_completo": "Juan Pérez",
+          "parentesco": "MADRE",
+          "email": "juan@ejemplo.com",
+          "edad": 12
+        }
+      ]
+    }
+  ]
+}
+```
+
+### 6.2 Crear Tutor (Solo Administradores)
+```
+POST /api/tutors/
+```
+
+**Request Body:**
+```json
+{
+  "ci": "11223344",
+  "nombre": "Luis",
+  "apellido": "González",
+  "email": "luis@ejemplo.com",
+  "telefono": "+59171234570"
+}
+```
+
+### 6.3 Asignar Estudiante a Tutor
+```
+POST /api/tutors/{ci}/asignar_estudiante/
+```
+
+**Request Body:**
+```json
+{
+  "ci_estudiante": "12345678",
+  "parentesco": "PADRE"
+}
+```
+
+---
+
+## 7. NOTAS (`/api/grades/`)
+
+### 7.1 Listar Notas
+```
+GET /api/grades/notas/
+```
+
+**Query Parameters:**
+- `codigo_curso`: Filtrar por curso
+- `codigo_materia`: Filtrar por materia
+- `ci_estudiante`: Filtrar por estudiante
+- `codigo_criterio`: Filtrar por criterio
+
+**Response (200):**
+```json
+{
+  "count": 50,
+  "results": [
+    {
+      "id": 1,
+      "codigo_curso": "6TO-A-2024",
+      "codigo_materia": "MAT001",
+      "ci_estudiante": "12345678",
+      "codigo_criterio": "EX-T1-2024",
+      "nota": 85.50,
+      "observaciones": "Buen desempeño",
+      "estudiante_nombre": "Juan Pérez",
+      "materia_nombre": "Matemáticas",
+      "curso_nombre": "6TO-A-2024",
+      "criterio_descripcion": "Examen Primer Trimestre",
+      "periodo_nombre": "Primer Trimestre 2024",
+      "created_at": "2024-03-15T10:30:00Z"
+    }
+  ]
+}
+```
+
+### 7.2 Crear Nota (Docentes y Administradores)
+```
+POST /api/grades/notas/
+```
+
+**Request Body:**
+```json
+{
+  "codigo_curso": "6TO-A-2024",
+  "codigo_materia": "MAT001",
+  "ci_estudiante": "12345678",
+  "codigo_criterio": "EX-T1-2024",
+  "nota": 88.5,
+  "observaciones": "Excelente trabajo"
+}
+```
+
+### 7.3 Notas por Estudiante
+```
+GET /api/grades/notas/por_estudiante/?ci_estudiante=12345678&codigo_curso=6TO-A-2024
+```
+
+**Response (200):**
+```json
+[
+  {
+    "materia": "Matemáticas",
+    "notas": [
+      {
+        "criterio": "Examen Primer Trimestre",
+        "nota": 85.5,
+        "fecha": "2024-03-15",
+        "observaciones": "Buen desempeño"
+      }
+    ],
+    "promedio": 85.5,
+    "total_notas": 1
+  }
+]
+```
+
+### 7.4 Registro Masivo de Notas
+```
+POST /api/grades/notas/registro_masivo/
+```
+
+**Request Body:**
+```json
+{
+  "notas": [
+    {
+      "codigo_curso": "6TO-A-2024",
+      "codigo_materia": "MAT001",
+      "ci_estudiante": "12345678",
+      "codigo_criterio": "EX-T1-2024",
+      "nota": 85.5
+    },
+    {
+      "codigo_curso": "6TO-A-2024",
+      "codigo_materia": "MAT001",
+      "ci_estudiante": "87654321",
+      "codigo_criterio": "EX-T1-2024",
+      "nota": 92.0
+    }
+  ]
+}
+```
+
+---
+
+## 8. ASISTENCIA (`/api/attendance/`)
+
+### 8.1 Listar Asistencia
+```
+GET /api/attendance/
+```
+
+**Query Parameters:**
+- `codigo_curso`: Filtrar por curso
+- `codigo_materia`: Filtrar por materia
+- `ci_estudiante`: Filtrar por estudiante
+- `fecha`: Filtrar por fecha (YYYY-MM-DD)
+- `asistio`: Filtrar por presencia (true/false)
+
+**Response (200):**
+```json
+{
+  "count": 100,
+  "results": [
+    {
+      "id": 1,
+      "codigo_curso": "6TO-A-2024",
+      "codigo_materia": "MAT001",
+      "ci_estudiante": "12345678",
+      "fecha": "2024-03-15",
+      "asistio": true,
+      "observacion": "Llegó 5 minutos tarde",
+      "estudiante_nombre": "Juan Pérez",
+      "materia_nombre": "Matemáticas",
+      "curso_nombre": "6TO-A-2024",
+      "estado_asistencia": "Presente",
+      "created_at": "2024-03-15T08:30:00Z"
+    }
+  ]
+}
+```
+
+### 8.2 Registrar Asistencia Individual
+```
+POST /api/attendance/
+```
+
+**Request Body:**
+```json
+{
+  "codigo_curso": "6TO-A-2024",
+  "codigo_materia": "MAT001",
+  "ci_estudiante": "12345678",
+  "fecha": "2024-03-15",
+  "asistio": true,
+  "observacion": "Presente a tiempo"
+}
+```
+
+### 8.3 Registro Masivo de Asistencia
+```
+POST /api/attendance/registro_masivo/
+```
+
+**Request Body:**
+```json
+{
+  "codigo_curso": "6TO-A-2024",
+  "codigo_materia": "MAT001",
+  "fecha": "2024-03-15",
+  "estudiantes": [
+    {
+      "ci": "12345678",
+      "asistio": "true",
+      "observacion": "Presente"
+    },
+    {
+      "ci": "87654321",
+      "asistio": "false",
+      "observacion": "Ausente justificado"
+    }
+  ]
+}
+```
+
+### 8.4 Asistencia por Estudiante
+```
+GET /api/attendance/por_estudiante/?ci_estudiante=12345678&codigo_materia=MAT001
+```
+
+**Query Parameters:**
+- `ci_estudiante`: CI del estudiante (requerido)
+- `codigo_materia`: Código de materia (opcional)
+- `fecha_inicio`: Fecha inicio (opcional)
+- `fecha_fin`: Fecha fin (opcional)
+
+**Response (200):**
+```json
+{
+  "estudiante": "12345678",
+  "periodo": {
+    "fecha_inicio": "2024-03-01",
+    "fecha_fin": "2024-03-31"
+  },
+  "resumen": {
+    "total_clases": 20,
+    "asistencias": 18,
+    "ausencias": 2,
+    "porcentaje_asistencia": 90.0
+  },
+  "por_materia": [
+    {
+      "materia": "Matemáticas",
+      "registros": [
+        {
+          "fecha": "2024-03-15",
+          "asistio": true,
+          "observacion": "Presente"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### 8.5 Reporte Diario
+```
+GET /api/attendance/reporte_diario/?fecha=2024-03-15&codigo_curso=6TO-A-2024
+```
+
+**Response (200):**
+```json
+{
+  "fecha": "2024-03-15",
+  "estadisticas": {
+    "total_registros": 25,
+    "presentes": 23,
+    "ausentes": 2,
+    "porcentaje_asistencia": 92.0
+  },
+  "registros": [...]
+}
+```
+
+---
+
+## 9. PARTICIPACIÓN (`/api/participation/`)
+
+### 9.1 Listar Participaciones
+```
+GET /api/participation/
+```
+
+**Query Parameters:**
+- `codigo_curso`: Filtrar por curso
+- `codigo_materia`: Filtrar por materia
+- `ci_estudiante`: Filtrar por estudiante
+- `tipo_participacion`: Filtrar por tipo
+
+**Response (200):**
+```json
+{
+  "count": 75,
+  "results": [
+    {
+      "id": 1,
+      "codigo_curso": "6TO-A-2024",
+      "codigo_materia": "MAT001",
+      "ci_estudiante": "12345678",
+      "fecha": "2024-03-15",
+      "tipo_participacion": "PREGUNTA",
+      "calificacion": 4.5,
+      "observacion": "Excelente pregunta sobre fracciones",
+      "estudiante_nombre": "Juan Pérez",
+      "materia_nombre": "Matemáticas",
+      "curso_nombre": "6TO-A-2024",
+      "created_at": "2024-03-15T10:30:00Z"
+    }
+  ]
+}
+```
+
+### 9.2 Registrar Participación
+```
+POST /api/participation/
+```
+
+**Request Body:**
+```json
+{
+  "codigo_curso": "6TO-A-2024",
+  "codigo_materia": "MAT001",
+  "ci_estudiante": "12345678",
+  "fecha": "2024-03-15",
+  "tipo_participacion": "RESPUESTA",
+  "calificacion": 4.2,
+  "observacion": "Respuesta correcta y bien explicada"
+}
+```
+
+### 9.3 Participación por Estudiante
+```
+GET /api/participation/por_estudiante/?ci_estudiante=12345678&codigo_materia=MAT001
+```
+
+**Query Parameters:**
+- `ci_estudiante`: CI del estudiante (requerido)
+- `codigo_materia`: Código de materia (opcional)
+- `fecha_inicio`: Fecha inicio (opcional)
+- `fecha_fin`: Fecha fin (opcional)
+
+**Response (200):**
+```json
+{
+  "estudiante": "12345678",
+  "periodo": {
+    "fecha_inicio": "2024-03-01",
+    "fecha_fin": "2024-03-31"
+  },
+  "resumen": {
+    "promedio_general": 4.3,
+    "total_participaciones": 15,
+    "por_tipo": [
+      {
+        "tipo_participacion": "PREGUNTA",
+        "promedio": 4.5,
+        "total": 6
+      },
+      {
+        "tipo_participacion": "RESPUESTA",
+        "promedio": 4.2,
+        "total": 9
+      }
+    ]
+  },
+  "por_materia": [
+    {
+      "materia": "Matemáticas",
+      "participaciones": [
+        {
+          "fecha": "2024-03-15",
+          "tipo": "PREGUNTA",
+          "calificacion": 4.5,
+          "observacion": "Excelente pregunta"
+        }
+      ],
+      "promedio": 4.3,
+      "total_participaciones": 8
+    }
+  ]
+}
+```
+
+### 9.4 Ranking de Participación
+```
+GET /api/participation/ranking/?codigo_curso=6TO-A-2024&codigo_materia=MAT001
+```
+
+**Response (200):**
+```json
+{
+  "filtros": {
+    "codigo_curso": "6TO-A-2024",
+    "codigo_materia": "MAT001"
+  },
+  "total_estudiantes": 25,
+  "ranking": [
+    {
+      "posicion": 1,
+      "ci": "12345678",
+      "nombre_completo": "Juan Pérez",
+      "promedio_participacion": 4.5,
+      "total_participaciones": 15
+    },
+    {
+      "posicion": 2,
+      "ci": "87654321",
+      "nombre_completo": "María González",
+      "promedio_participacion": 4.3,
+      "total_participaciones": 12
+    }
+  ]
+}
+```
+
+### 9.5 Estadísticas Generales de Participación
+```
+GET /api/participation/estadisticas_generales/?codigo_curso=6TO-A-2024
+```
+
+**Response (200):**
+```json
+{
+  "estadisticas_generales": {
+    "promedio_general": 4.1,
+    "total_participaciones": 150,
+    "excelentes": 45,
+    "buenas": 80,
+    "regulares": 25
+  },
+  "por_tipo_participacion": [
+    {
+      "tipo_participacion": "PREGUNTA",
+      "promedio": 4.3,
+      "total": 60
+    },
+    {
+      "tipo_participacion": "RESPUESTA",
+      "promedio": 4.0,
+      "total": 90
+    }
+  ]
+}
+```
+
+---
+
+## 10. INSCRIPCIONES (`/api/students/inscripciones/`)
+
+### 10.1 Listar Inscripciones (Solo Administradores)
+```
+GET /api/students/inscripciones/
+```
+
+**Query Parameters:**
+- `estado`: Filtrar por estado (ACTIVO, RETIRADO, TRASLADADO)
+- `codigo_curso`: Filtrar por curso
+- `ci_estudiante`: Filtrar por estudiante
+
+**Response (200):**
+```json
+{
+  "count": 100,
+  "results": [
+    {
+      "id": 1,
+      "ci_estudiante": "12345678",
+      "codigo_curso": "6TO-A-2024",
+      "fecha_inscripcion": "2024-02-01",
+      "fecha_baja": null,
+      "estado": "ACTIVO",
+      "motivo_baja": null,
+      "estudiante_nombre": "Juan Pérez",
+      "curso_nombre": "6TO-A-2024",
+      "created_at": "2024-02-01T10:00:00Z",
+      "updated_at": "2024-02-01T10:00:00Z"
+    }
+  ]
+}
+```
+
+### 10.2 Crear Inscripción (Solo Administradores)
+```
+POST /api/students/inscripciones/
+```
+
+**Request Body:**
+```json
+{
+  "ci_estudiante": "12345678",
+  "codigo_curso": "7MO-A-2024",
+  "fecha_inscripcion": "2024-02-01"
+}
+```
+
+---
+
+## 11. RELACIONES TUTOR-ESTUDIANTE (`/api/students/tutor-estudiante/`)
+
+### 11.1 Listar Relaciones
+```
+GET /api/students/tutor-estudiante/
+```
+
+**Query Parameters:**
+- `parentesco`: Filtrar por parentesco
+- `ci_estudiante`: Filtrar por estudiante
+- `ci_tutor`: Filtrar por tutor
+
+**Response (200):**
+```json
+{
+  "count": 30,
+  "results": [
+    {
+      "id": 1,
+      "ci_tutor": "98765432",
+      "ci_estudiante": "12345678",
+      "parentesco": "MADRE",
+      "tutor_nombre": "Ana Pérez",
+      "estudiante_nombre": "Juan Pérez",
+      "tutor_telefono": "+59171234569",
+      "tutor_email": "ana@ejemplo.com",
+      "created_at": "2024-01-15T00:00:00Z",
+      "updated_at": "2024-01-15T00:00:00Z",
+      "is_active": true
+    }
+  ]
+}
+```
+
+### 11.2 Crear Relación Tutor-Estudiante
+```
+POST /api/students/tutor-estudiante/
+```
+
+**Request Body:**
+```json
+{
+  "ci_tutor": "98765432",
+  "ci_estudiante": "12345678",
+  "parentesco": "PADRE"
+}
+```
+
+---
+
+## 12. CAMPOS Y CRITERIOS (`/api/courses/`)
+
+### 12.1 Listar Campos
+```
+GET /api/courses/campos/
+```
+
+**Response (200):**
+```json
+{
+  "count": 5,
+  "results": [
+    {
+      "codigo": "EX",
+      "nombre": "Exámenes",
+      "valor": 70,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z",
+      "is_active": true
+    },
+    {
+      "codigo": "PRAC",
+      "nombre": "Prácticas",
+      "valor": 30,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z",
+      "is_active": true
+    }
+  ]
+}
+```
+
+### 12.2 Crear Campo (Solo Administradores)
+```
+POST /api/courses/campos/
+```
+
+**Request Body:**
+```json
+{
+  "codigo": "PROJ",
+  "nombre": "Proyectos",
+  "valor": 20
+}
+```
+
+### 12.3 Listar Criterios
+```
+GET /api/courses/criterios/
+```
+
+**Query Parameters:**
+- `codigo_campo`: Filtrar por campo
+- `codigo_periodo`: Filtrar por período
+
+**Response (200):**
+```json
+{
+  "count": 20,
+  "results": [
+    {
+      "codigo": "EX-T1-2024",
+      "descripcion": "Examen Primer Trimestre 2024",
+      "codigo_campo": "EX",
+      "codigo_periodo": "T1-2024",
+      "campo_nombre": "Exámenes",
+      "periodo_nombre": "Primer Trimestre 2024",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z",
+      "is_active": true
+    }
+  ]
+}
+```
+
+### 12.4 Crear Criterio (Solo Administradores)
+```
+POST /api/courses/criterios/
+```
+
+**Request Body:**
+```json
+{
+  "codigo": "EX-T2-2024",
+  "descripcion": "Examen Segundo Trimestre 2024",
+  "codigo_campo": "EX",
+  "codigo_periodo": "T2-2024"
+}
+```
+
+---
+
+## CÓDIGOS DE ESTADO HTTP
+
+### Exitosos (2xx)
+- **200 OK**: Petición exitosa
+- **201 Created**: Recurso creado exitosamente
+- **204 No Content**: Petición exitosa sin contenido de respuesta
+
+### Errores del Cliente (4xx)
+- **400 Bad Request**: Datos de entrada inválidos
+- **401 Unauthorized**: No autenticado
+- **403 Forbidden**: Sin permisos para realizar la acción
+- **404 Not Found**: Recurso no encontrado
+- **409 Conflict**: Conflicto con el estado actual del recurso
+
+### Errores del Servidor (5xx)
+- **500 Internal Server Error**: Error interno del servidor
+
+---
+
+## ROLES Y PERMISOS
+
+### Administrador
+- **Acceso completo** a todos los endpoints
+- Puede **crear, leer, actualizar y eliminar** cualquier recurso
+- Único rol que puede crear usuarios y asignar roles
+
+### Docente
+- **Lectura**: Estudiantes de sus cursos, materias asignadas
+- **Escritura**: Notas, asistencia y participación de sus estudiantes
+- **Restricción**: Solo datos relacionados con sus asignaciones
+
+### Estudiante
+- **Solo lectura** de su propia información:
+  - Perfil personal
+  - Notas propias
+  - Asistencia propia
+  - Participación propia
+  - Rendimiento académico propio
+
+---
+
+## PAGINACIÓN
+
+Todos los endpoints de listado incluyen paginación automática:
+
+**Query Parameters:**
+- `page`: Número de página (default: 1)
+- `page_size`: Elementos por página (default: 20, max: 100)
+
+**Estructura de Respuesta:**
+```json
+{
+  "count": 100,
+  "next": "http://127.0.0.1:8000/api/endpoint/?page=3",
+  "previous": "http://127.0.0.1:8000/api/endpoint/?page=1",
+  "results": [...]
+}
+```
+
+---
+
+## FILTRADO Y BÚSQUEDA
+
+### Filtrado por Campos
+Usar parámetros de query con el nombre del campo:
+```
+GET /api/students/estudiantes/?curso_actual=6TO-A-2024
+```
+
+### Búsqueda de Texto
+Usar el parámetro `search`:
+```
+GET /api/students/estudiantes/?search=Juan
+```
+
+### Ordenamiento
+Usar el parámetro `ordering`:
+```
+GET /api/students/estudiantes/?ordering=-created_at,nombre
+```
+- Prefijo `-` para orden descendente
+- Sin prefijo para orden ascendente
+
+---
+
+## MANEJO DE ERRORES
+
+### Formato de Error Estándar
+```json
+{
+  "field_name": ["Error message"],
+  "non_field_errors": ["General error message"]
+}
+```
+
+### Errores de Validación Comunes
+```json
+{
+  "username": ["Ya existe un usuario con este username"],
+  "email": ["Ingrese una dirección de correo electrónico válida"],
+  "password": ["La contraseña debe tener al menos 8 caracteres"]
+}
+```
+
+### Errores de Autenticación
+```json
+{
+  "detail": "Token inválido o expirado"
+}
+```
+
+### Errores de Permisos
+```json
+{
+  "detail": "No tiene permisos para realizar esta acción"
+}
+```
+
+---
+
+## EJEMPLOS DE USO COMPLETO
+
+### 1. Flujo de Autenticación
+```bash
+# 1. Login
+curl -X POST http://127.0.0.1:8000/api/auth/login/ \
+  -H "Content-Type: application/json" \
+  -d '{"username": "admin", "password": "admin123"}'
+
+# 2. Usar token en peticiones posteriores
+curl -X GET http://127.0.0.1:8000/api/students/estudiantes/ \
+  -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+```
+
+### 2. Crear Estudiante Completo
+```bash
+# 1. Crear tutor
+curl -X POST http://127.0.0.1:8000/api/tutors/ \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ci": "98765432",
+    "nombre": "Ana",
+    "apellido": "Pérez",
+    "email": "ana@ejemplo.com",
+    "telefono": "+59171234569"
+  }'
+
+# 2. Crear estudiante
+curl -X POST http://127.0.0.1:8000/api/students/estudiantes/ \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ci": "12345678",
+    "nombre": "Juan",
+    "apellido": "Pérez",
+    "email": "juan@ejemplo.com",
+    "fecha_nacimiento": "2012-05-15",
+    "username": "juan_perez",
+    "password": "password123",
+    "codigo_curso": "6TO-A-2024"
+  }'
+
+# 3. Relacionar tutor con estudiante
+curl -X POST http://127.0.0.1:8000/api/students/tutor-estudiante/ \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ci_tutor": "98765432",
+    "ci_estudiante": "12345678",
+    "parentesco": "MADRE"
+  }'
+```
+
+### 3. Registro de Asistencia de una Clase
+```bash
+curl -X POST http://127.0.0.1:8000/api/attendance/registro_masivo/ \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "codigo_curso": "6TO-A-2024",
+    "codigo_materia": "MAT001",
+    "fecha": "2024-03-15",
+    "estudiantes": [
+      {"ci": "12345678", "asistio": "true"},
+      {"ci": "87654321", "asistio": "false", "observacion": "Enfermo"},
+      {"ci": "11223344", "asistio": "true"}
+    ]
+  }'
+```
+
+---
+
+## NOTAS IMPORTANTES
+
+### Seguridad
+- Todos los endpoints (excepto login y refresh) requieren autenticación JWT
+- Los tokens de acceso expiran en 1 hora
+- Los tokens de refresco expiran en 7 días
+- Los permisos se verifican a nivel de usuario y objeto
+
+### Datos de Prueba
+- Usuario administrador: `admin` / `admin123`
+- Crear datos de prueba usando el comando: `python manage.py setup_initial_data`
+
+### Formato de Fechas
+- **Fechas**: `YYYY-MM-DD` (ej: "2024-03-15")
+- **Fechas y horas**: `YYYY-MM-DDTHH:MM:SSZ` (ej: "2024-03-15T10:30:00Z")
+
+### Validaciones Importantes
+- **CI**: Único por tabla (estudiante, docente, tutor)
+- **Email**: Único por tabla
+- **Username**: Único en sistema
+- **Notas**: Entre 0 y 100
+- **Participación**: Entre 1.0 y 5.0
+- **Un estudiante**: Solo puede tener una inscripción activa por vez
