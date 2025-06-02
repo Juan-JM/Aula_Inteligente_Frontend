@@ -86,16 +86,6 @@ export function SubjectsPage() {
       sortable: true,
     },
     {
-      key: "creditos",
-      label: "Créditos",
-      render: (value: number) => <Badge variant="outline">{value} créditos</Badge>,
-    },
-    {
-      key: "horas_semanales",
-      label: "Horas Semanales",
-      render: (value: number) => <span>{value} hrs/semana</span>,
-    },
-    {
       key: "is_active",
       label: "Estado",
       render: (value: boolean) => (

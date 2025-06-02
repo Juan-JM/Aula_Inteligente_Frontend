@@ -66,18 +66,6 @@ export function TutorDetails({ open, onOpenChange, tutor }: TutorDetailsProps) {
                   <Phone className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">{tutor.telefono}</span>
                 </div>
-                {tutor.direccion && (
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{tutor.direccion}</span>
-                  </div>
-                )}
-                {tutor.ocupacion && (
-                  <div className="flex items-center gap-2">
-                    <Briefcase className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{tutor.ocupacion}</span>
-                  </div>
-                )}
               </div>
             </CardContent>
           </Card>

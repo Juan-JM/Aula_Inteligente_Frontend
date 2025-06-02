@@ -15,9 +15,6 @@ import type { Subject } from "@/types/api"
 const subjectSchema = z.object({
   codigo: z.string().min(1, "El código es requerido"),
   nombre: z.string().min(1, "El nombre es requerido"),
-  descripcion: z.string().optional(),
-  creditos: z.number().min(1, "Los créditos deben ser mayor a 0"),
-  horas_semanales: z.number().min(1, "Las horas semanales deben ser mayor a 0"),
 })
 
 type SubjectFormData = z.infer<typeof subjectSchema>
@@ -47,17 +44,11 @@ export function SubjectForm({ open, onOpenChange, subject, mode, onSuccess }: Su
       reset({
         codigo: subject.codigo,
         nombre: subject.nombre,
-        descripcion: subject.descripcion || "",
-        creditos: subject.creditos,
-        horas_semanales: subject.horas_semanales,
       })
     } else {
       reset({
         codigo: "",
         nombre: "",
-        descripcion: "",
-        creditos: 1,
-        horas_semanales: 1,
       })
     }
   }, [subject, mode, reset])
@@ -100,34 +91,6 @@ export function SubjectForm({ open, onOpenChange, subject, mode, onSuccess }: Su
           <div className="space-y-2">
             <Label htmlFor="nombre">Nombre de la Materia</Label>
             <Input id="nombre" {...register("nombre")} error={errors.nombre?.message} />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="descripcion">Descripción</Label>
-            <Input id="descripcion" {...register("descripcion")} placeholder="Opcional" />
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="creditos">Créditos</Label>
-              <Input
-                id="creditos"
-                type="number"
-                min="1"
-                {...register("creditos", { valueAsNumber: true })}
-                error={errors.creditos?.message}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="horas_semanales">Horas Semanales</Label>
-              <Input
-                id="horas_semanales"
-                type="number"
-                min="1"
-                {...register("horas_semanales", { valueAsNumber: true })}
-                error={errors.horas_semanales?.message}
-              />
-            </div>
           </div>
 
           <div className="flex gap-2 pt-4">

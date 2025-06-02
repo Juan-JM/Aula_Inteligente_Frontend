@@ -92,11 +92,6 @@ export function TutorsPage() {
       label: "Teléfono",
     },
     {
-      key: "ocupacion",
-      label: "Ocupación",
-      render: (value: string) => value || <span className="text-muted-foreground">No especificada</span>,
-    },
-    {
       key: "estudiantes",
       label: "Estudiantes",
       render: (value: any, tutor: Tutor) => (

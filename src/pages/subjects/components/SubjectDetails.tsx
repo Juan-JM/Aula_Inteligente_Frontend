@@ -36,39 +36,6 @@ export function SubjectDetails({ open, onOpenChange, subject }: SubjectDetailsPr
                 <BookOpen className="h-12 w-12 text-muted-foreground" />
               </div>
             </CardHeader>
-            {subject.descripcion && (
-              <CardContent>
-                <p className="text-sm text-muted-foreground">{subject.descripcion}</p>
-              </CardContent>
-            )}
-          </Card>
-
-          {/* Información Académica */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Award className="h-4 w-4" />
-                Información Académica
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="flex items-center gap-2">
-                  <Award className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">
-                    <span className="font-medium">Créditos: </span>
-                    {subject.creditos}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">
-                    <span className="font-medium">Horas semanales: </span>
-                    {subject.horas_semanales}
-                  </span>
-                </div>
-              </div>
-            </CardContent>
           </Card>
 
           {/* Prerequisitos */}

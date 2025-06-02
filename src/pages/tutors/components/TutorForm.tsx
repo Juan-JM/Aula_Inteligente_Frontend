@@ -23,8 +23,6 @@ const tutorSchema = z.object({
   apellido: z.string().min(1, "El apellido es requerido"),
   telefono: z.string().min(1, "El teléfono es requerido"),
   email: z.string().email("Email inválido"),
-  direccion: z.string().optional(),
-  ocupacion: z.string().optional(),
 })
 
 type TutorFormData = z.infer<typeof tutorSchema>
@@ -99,8 +97,6 @@ export function TutorForm({ open, onOpenChange, tutor, mode, onSuccess }: TutorF
         apellido: tutor.apellido,
         telefono: tutor.telefono,
         email: tutor.email,
-        direccion: tutor.direccion || "",
-        ocupacion: tutor.ocupacion || "",
       })
 
       // Cargar estudiantes asignados
@@ -120,8 +116,6 @@ export function TutorForm({ open, onOpenChange, tutor, mode, onSuccess }: TutorF
         apellido: "",
         telefono: "",
         email: "",
-        direccion: "",
-        ocupacion: "",
       })
       setStudentAssignments([])
       setOriginalAssignments([])
@@ -272,16 +266,6 @@ export function TutorForm({ open, onOpenChange, tutor, mode, onSuccess }: TutorF
                   <Label htmlFor="email">Email</Label>
                   <Input id="email" type="email" {...register("email")} error={errors.email?.message} />
                 </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="ocupacion">Ocupación</Label>
-                <Input id="ocupacion" {...register("ocupacion")} placeholder="Opcional" />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="direccion">Dirección</Label>
-                <Input id="direccion" {...register("direccion")} placeholder="Opcional" />
               </div>
             </CardContent>
           </Card>
