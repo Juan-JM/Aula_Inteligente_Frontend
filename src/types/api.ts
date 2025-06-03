@@ -186,6 +186,23 @@ export interface Participation {
   created_at: string
 }
 
+export interface Campo {
+  codigo: string
+  nombre: string
+  valor: number
+  created_at: string
+  updated_at: string
+  is_active: boolean
+}
+
+export interface Periodo {
+  codigo: string
+  nombre: string
+  created_at: string
+  updated_at: string
+  is_active: boolean
+}
+
 export interface DashboardStats {
   total_students: number
   average_grade: number

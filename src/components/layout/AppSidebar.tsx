@@ -15,6 +15,8 @@ import {
   Shield,
   UserCog,
   UsersRound,
+  Calendar,
+  Target,
 } from "lucide-react"
 
 import {
@@ -62,6 +64,16 @@ const menuItems = [
     title: "Materias",
     url: "/subjects",
     icon: BookOpen,
+  },
+  {
+    title: "Campos",
+    url: "/campos",
+    icon: Target,
+  },
+  {
+    title: "Períodos",
+    url: "/periodos",
+    icon: Calendar,
   },
   {
     title: "Calificaciones",

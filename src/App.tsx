@@ -19,6 +19,8 @@ import { ParticipationPage } from "@/pages/participation/ParticipationPage"
 import { ReportsPage } from "@/pages/reports/ReportsPage"
 import { SettingsPage } from "@/pages/settings/SettingsPage"
 import { Toaster } from "@/components/ui/toaster"
+import { CamposPage } from "@/pages/campos/CamposPage"
+import { PeriodosPage } from "@/pages/periodos/PeriodosPage"
 
 function App() {
   return (
@@ -40,6 +42,8 @@ function App() {
                       <Route path="/tutors" element={<TutorsPage />} />
                       <Route path="/courses" element={<CoursesPage />} />
                       <Route path="/subjects" element={<SubjectsPage />} />
+                      <Route path="/campos" element={<CamposPage />} />
+                      <Route path="/periodos" element={<PeriodosPage />} />
                       <Route path="/roles" element={<RolesPage />} />
                       <Route path="/users" element={<UsersPage />} />
                       <Route path="/grades" element={<GradesPage />} />

@@ -10,6 +10,8 @@ import type {
   Role,
   Permission,
   Grade,
+  Campo,
+  Periodo,
   DashboardStats,
 } from "@/types/api"
 import type { Attendance, Participation } from "@/types/api"
@@ -605,6 +607,59 @@ export const participationApi = {
   },
 }
 
+// Campos API
+export const camposApi = {
+  getAll: async (params?: any): Promise<ApiResponse<Campo>> => {
+    const response = await api.get("/api/courses/campos/", { params })
+    return response.data
+  },
+
+  getById: async (codigo: string): Promise<Campo> => {
+    const response = await api.get(`/api/courses/campos/${codigo}/`)
+    return response.data
+  },
+
+  create: async (data: any): Promise<Campo> => {
+    const response = await api.post("/api/courses/campos/", data)
+    return response.data
+  },
+
+  update: async (codigo: string, data: any): Promise<Campo> => {
+    const response = await api.put(`/api/courses/campos/${codigo}/`, data)
+    return response.data
+  },
+
+  delete: async (codigo: string): Promise<void> => {
+    await api.delete(`/api/courses/campos/${codigo}/`)
+  },
+}
+
+// Períodos API
+export const periodosApi = {
+  getAll: async (params?: any): Promise<ApiResponse<Periodo>> => {
+    const response = await api.get("/api/courses/periodos/", { params })
+    return response.data
+  },
+
+  getById: async (codigo: string): Promise<Periodo> => {
+    const response = await api.get(`/api/courses/periodos/${codigo}/`)
+    return response.data
+  },
+
+  create: async (data: any): Promise<Periodo> => {
+    const response = await api.post("/api/courses/periodos/", data)
+    return response.data
+  },
+
+  update: async (codigo: string, data: any): Promise<Periodo> => {
+    const response = await api.put(`/api/courses/periodos/${codigo}/`, data)
+    return response.data
+  },
+
+  delete: async (codigo: string): Promise<void> => {
+    await api.delete(`/api/courses/periodos/${codigo}/`)
+  },
+}
 
 
 export default api
