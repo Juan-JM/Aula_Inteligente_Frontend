@@ -29,6 +29,25 @@ export interface Student {
     telefono: string
     email: string
   }>
+  // Información adicional del detalle
+  usuario_info?: {
+    username: string
+    is_active: boolean
+    last_login?: string
+  }
+  inscripciones?: Array<{
+    id: number
+    codigo_curso: string
+    fecha_inscripcion: string
+    estado: string
+    curso_nombre: string
+  }>
+  rendimiento_resumen?: {
+    promedio_general: number
+    porcentaje_asistencia: number
+    total_notas: number
+    total_clases: number
+  }
 }
 
 export interface Teacher {
@@ -142,12 +161,27 @@ export interface User {
   }
 }
 
+
+// Actualizado: Criterio ahora tiene id en lugar de código
+export interface Criterio {
+  id: string
+  descripcion: string
+  codigo_campo: string
+  codigo_periodo: string
+  campo_nombre: string
+  periodo_nombre: string
+  created_at: string
+  updated_at: string
+  is_active: boolean
+}
+
+// Actualizado: Grade ahora usa id_criterio en lugar de codigo_criterio
 export interface Grade {
   id: number
   codigo_curso: string
   codigo_materia: string
   ci_estudiante: string
-  codigo_criterio: string
+  id_criterio: string // Cambiado de codigo_criterio a id_criterio
   nota: number
   observaciones: string
   estudiante_nombre: string
@@ -201,6 +235,64 @@ export interface Periodo {
   created_at: string
   updated_at: string
   is_active: boolean
+}
+
+
+// Nuevas interfaces
+export interface Asignacion {
+  id: number
+  codigo_curso: string
+  codigo_materia: string
+  ci_docente: string
+  materia_nombre: string
+  curso_nombre: string
+  docente_nombre: string
+  created_at: string
+  is_active: boolean
+}
+
+export interface Inscripcion {
+  id: number
+  ci_estudiante: string
+  codigo_curso: string
+  fecha_inscripcion: string
+  fecha_baja?: string
+  estado: "ACTIVO" | "RETIRADO" | "TRASLADADO"
+  motivo_baja?: string
+  estudiante_nombre: string
+  curso_nombre: string
+  created_at: string
+  updated_at: string
+}
+
+export interface RendimientoEstudiante {
+  estudiante: {
+    ci: string
+    nombre: string
+    apellido: string
+    email: string
+  }
+  curso_actual: {
+    codigo: string
+    nombre: string
+    nivel: string
+    paralelo: string
+    gestion: number
+  }
+  rendimiento_por_materia: {
+    [materia: string]: {
+      materia_codigo: string
+      docente: string
+      notas: Array<{
+        criterio: string
+        nota: number
+        fecha: string
+      }>
+      promedio_notas: number
+      porcentaje_asistencia: number
+      promedio_participacion: number
+    }
+  }
 }
 
 export interface DashboardStats {

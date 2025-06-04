@@ -11,14 +11,20 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { gradesApi, coursesApi, subjectsApi } from "@/lib/api"
-import type { Grade, Course, Subject, Student } from "@/types/api"
+import { gradesApi, coursesApi, subjectsApi, camposApi, periodosApi, criteriosApi } from "@/lib/api"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import type { Grade, Course, Subject, Student, Campo, Periodo } from "@/types/api"
 
+// Actualizado: Esquema ahora incluye campos para crear criterio
 const gradeSchema = z.object({
   codigo_curso: z.string().min(1, "El curso es requerido"),
   codigo_materia: z.string().min(1, "La materia es requerida"),
   ci_estudiante: z.string().min(1, "El estudiante es requerido"),
-  codigo_criterio: z.string().min(1, "El criterio es requerido"),
+  // Campos para crear criterio
+  criterio_descripcion: z.string().min(1, "La descripción del criterio es requerida"),
+  codigo_campo: z.string().min(1, "El campo es requerido"),
+  codigo_periodo: z.string().min(1, "El periodo es requerido"),
+  // Resto de campos
   nota: z.number().min(0, "La nota debe ser mayor o igual a 0").max(100, "La nota debe ser menor o igual a 100"),
   observaciones: z.string().optional(),
 })
@@ -38,7 +44,8 @@ export function GradeForm({ open, onOpenChange, grade, mode, onSuccess }: GradeF
   const [courses, setCourses] = useState<Course[]>([])
   const [subjects, setSubjects] = useState<Subject[]>([])
   const [students, setStudents] = useState<Student[]>([])
-  const [criteria, setCriteria] = useState<any[]>([])
+  const [campos, setCampos] = useState<Campo[]>([])
+  const [periodos, setPeriodos] = useState<Periodo[]>([])
 
   const {
     register,
@@ -65,20 +72,34 @@ export function GradeForm({ open, onOpenChange, grade, mode, onSuccess }: GradeF
 
   useEffect(() => {
     if (grade && mode === "edit") {
-      reset({
-        codigo_curso: grade.codigo_curso,
-        codigo_materia: grade.codigo_materia,
-        ci_estudiante: grade.ci_estudiante,
-        codigo_criterio: grade.codigo_criterio,
-        nota: grade.nota,
-        observaciones: grade.observaciones || "",
-      })
+      // Para edición, necesitamos obtener los datos del criterio primero
+      const fetchCriterioData = async () => {
+        try {
+          const criterio = await criteriosApi.getById(grade.id_criterio)
+          reset({
+            codigo_curso: grade.codigo_curso,
+            codigo_materia: grade.codigo_materia,
+            ci_estudiante: grade.ci_estudiante,
+            criterio_descripcion: criterio.descripcion,
+            codigo_campo: criterio.codigo_campo,
+            codigo_periodo: criterio.codigo_periodo,
+            nota: grade.nota,
+            observaciones: grade.observaciones || "",
+          })
+        } catch (error) {
+          console.error("Error fetching criterio data:", error)
+        }
+      }
+
+      fetchCriterioData()
     } else {
       reset({
         codigo_curso: "",
         codigo_materia: "",
         ci_estudiante: "",
-        codigo_criterio: "",
+        criterio_descripcion: "",
+        codigo_campo: "",
+        codigo_periodo: "",
         nota: 0,
         observaciones: "",
       })
@@ -87,14 +108,16 @@ export function GradeForm({ open, onOpenChange, grade, mode, onSuccess }: GradeF
 
   const fetchInitialData = async () => {
     try {
-      const [coursesResponse, subjectsResponse, criteriaResponse] = await Promise.all([
+      const [coursesResponse, subjectsResponse, camposResponse, periodosResponse] = await Promise.all([
         coursesApi.getAll(),
         subjectsApi.getAll(),
-        coursesApi.getCriteria(),
+        camposApi.getAll(),
+        periodosApi.getAll(),
       ])
       setCourses(coursesResponse.results)
       setSubjects(subjectsResponse.results)
-      setCriteria(criteriaResponse)
+      setCampos(camposResponse.results)
+      setPeriodos(periodosResponse.results)
     } catch (error) {
       console.error("Error fetching initial data:", error)
     }
@@ -109,14 +132,57 @@ export function GradeForm({ open, onOpenChange, grade, mode, onSuccess }: GradeF
     }
   }
 
+  // Función helper para obtener el nombre completo del estudiante seleccionado
+  const getSelectedStudentDisplayName = () => {
+    const selectedCi = watch("ci_estudiante")
+    if (!selectedCi) return ""
+    
+    const student = students.find(s => s.ci === selectedCi)
+    if (!student) return `CI: ${selectedCi}`
+    
+    const nombre = student.nombre || 'Sin nombre'
+    const apellido = student.apellido || 'Sin apellido'
+    return `${nombre} ${apellido} - CI: ${selectedCi}`
+  }
+
   const onSubmit = async (data: GradeFormData) => {
     setIsLoading(true)
     try {
-      if (mode === "edit" && grade) {
-        await gradesApi.update(grade.id, data)
-      } else {
-        await gradesApi.create(data)
+      // Primero crear el criterio
+      const criterioData = {
+        descripcion: data.criterio_descripcion,
+        codigo_campo: data.codigo_campo,
+        codigo_periodo: data.codigo_periodo,
       }
+
+      let criterioId: string
+
+      if (mode === "edit" && grade) {
+        // Si estamos editando, actualizamos el criterio existente
+        const updatedCriterio = await criteriosApi.update(grade.id_criterio, criterioData)
+        criterioId = updatedCriterio.id
+      } else {
+        // Si estamos creando, creamos un nuevo criterio
+        const newCriterio = await criteriosApi.create(criterioData)
+        criterioId = newCriterio.id
+      }
+
+      // Luego crear o actualizar la calificación
+      const gradeData = {
+        codigo_curso: data.codigo_curso,
+        codigo_materia: data.codigo_materia,
+        ci_estudiante: data.ci_estudiante,
+        id_criterio: criterioId, // Usar el ID del criterio creado o actualizado
+        nota: data.nota,
+        observaciones: data.observaciones,
+      }
+
+      if (mode === "edit" && grade) {
+        await gradesApi.update(grade.id, gradeData)
+      } else {
+        await gradesApi.create(gradeData)
+      }
+
       onSuccess()
       reset()
     } catch (error) {
@@ -175,45 +241,87 @@ export function GradeForm({ open, onOpenChange, grade, mode, onSuccess }: GradeF
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="ci_estudiante">Estudiante</Label>
-              <Select
-                value={watch("ci_estudiante")}
-                onValueChange={(value) => setValue("ci_estudiante", value)}
-                disabled={!selectedCourse}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar estudiante" />
-                </SelectTrigger>
-                <SelectContent>
-                  {students.map((student) => (
-                    <SelectItem key={student.ci} value={student.ci}>
-                      {student.nombre_completo} - CI: {student.ci}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.ci_estudiante && <p className="text-sm text-destructive">{errors.ci_estudiante.message}</p>}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="codigo_criterio">Criterio de Evaluación</Label>
-              <Select value={watch("codigo_criterio")} onValueChange={(value) => setValue("codigo_criterio", value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar criterio" />
-                </SelectTrigger>
-                <SelectContent>
-                  {criteria.map((criterio) => (
-                    <SelectItem key={criterio.codigo} value={criterio.codigo}>
-                      {criterio.descripcion}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.codigo_criterio && <p className="text-sm text-destructive">{errors.codigo_criterio.message}</p>}
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="ci_estudiante">Estudiante</Label>
+            <Select
+              value={watch("ci_estudiante")}
+              onValueChange={(value) => setValue("ci_estudiante", value)}
+              disabled={!selectedCourse}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccionar estudiante" />
+              </SelectTrigger>
+              <SelectContent>
+                {students.map((student) => (
+                  <SelectItem key={student.ci} value={student.ci}>
+                    <div className="flex flex-col">
+                      <span className="font-medium">
+                        {student.nombre || 'Sin nombre'} {student.apellido || 'Sin apellido'}
+                      </span>
+                      <span className="text-sm text-muted-foreground">CI: {student.ci}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.ci_estudiante && <p className="text-sm text-destructive">{errors.ci_estudiante.message}</p>}
           </div>
+
+          {/* Nueva sección para crear criterio */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Criterio de Evaluación</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="criterio_descripcion">Descripción</Label>
+                <Input
+                  id="criterio_descripcion"
+                  {...register("criterio_descripcion")}
+                  placeholder="Ej: Examen Primer Trimestre 2024"
+                />
+                {errors.criterio_descripcion && (
+                  <p className="text-sm text-destructive">{errors.criterio_descripcion.message}</p>
+                )}
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="codigo_campo">Campo</Label>
+                  <Select value={watch("codigo_campo")} onValueChange={(value) => setValue("codigo_campo", value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar campo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {campos.map((campo) => (
+                        <SelectItem key={campo.codigo} value={campo.codigo}>
+                          {campo.nombre} ({campo.valor}%)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.codigo_campo && <p className="text-sm text-destructive">{errors.codigo_campo.message}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="codigo_periodo">Periodo</Label>
+                  <Select value={watch("codigo_periodo")} onValueChange={(value) => setValue("codigo_periodo", value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar periodo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {periodos.map((periodo) => (
+                        <SelectItem key={periodo.codigo} value={periodo.codigo}>
+                          {periodo.nombre}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.codigo_periodo && <p className="text-sm text-destructive">{errors.codigo_periodo.message}</p>}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           <div className="space-y-2">
             <Label htmlFor="nota">Calificación (0-100)</Label>

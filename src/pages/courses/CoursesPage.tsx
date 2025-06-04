@@ -88,16 +88,6 @@ export function CoursesPage() {
       sortable: true,
     },
     {
-      key: "docente_titular",
-      label: "Docente Titular",
-      render: (value: any, course: Course) =>
-        course.docente_titular ? (
-          <span>{course.docente_titular.nombre_completo}</span>
-        ) : (
-          <span className="text-muted-foreground">Sin asignar</span>
-        ),
-    },
-    {
       key: "total_estudiantes",
       label: "Estudiantes",
       render: (value: number) => <Badge variant="outline">{value || 0} estudiantes</Badge>,

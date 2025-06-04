@@ -13,6 +13,11 @@ import type {
   Campo,
   Periodo,
   DashboardStats,
+  Asignacion,
+  Inscripcion,
+  RendimientoEstudiante,
+  Criterio,
+
 } from "@/types/api"
 import type { Attendance, Participation } from "@/types/api"
 
@@ -239,6 +244,21 @@ export const studentsApi = {
     const response = await api.post(`/api/students/estudiantes/${ci}/desasignar_usuario/`)
     return response.data
   },
+  // Nuevos métodos para inscripciones y rendimiento
+  inscribirCurso: async (ci: string, data: any): Promise<any> => {
+    const response = await api.post(`/api/students/estudiantes/${ci}/inscribir_curso/`, data)
+    return response.data
+  },
+
+  darBaja: async (ci: string, data: any): Promise<any> => {
+    const response = await api.post(`/api/students/estudiantes/${ci}/dar_baja/`, data)
+    return response.data
+  },
+
+  getRendimiento: async (ci: string): Promise<RendimientoEstudiante> => {
+    const response = await api.get(`/api/students/estudiantes/${ci}/rendimiento/`)
+    return response.data
+  },
 }
 
 // Teachers API - Actualizado según nueva documentación
@@ -289,6 +309,17 @@ export const teachersApi = {
 
   unassignUser: async (ci: string): Promise<any> => {
     const response = await api.post(`/api/teachers/docentes/${ci}/desasignar_usuario/`)
+    return response.data
+  },
+
+  // Nuevos métodos para asignaciones
+  getAsignaciones: async (ci: string): Promise<Asignacion[]> => {
+    const response = await api.get(`/api/teachers/docentes/${ci}/asignaciones/`)
+    return response.data
+  },
+
+  getEstudiantes: async (ci: string): Promise<any[]> => {
+    const response = await api.get(`/api/teachers/docentes/${ci}/estudiantes/`)
     return response.data
   },
 }
@@ -455,7 +486,87 @@ export const usersApi = {
   },
 }
 
-// Grades API
+
+// Asignaciones API (NUEVO)
+export const asignacionesApi = {
+  getAll: async (params?: any): Promise<ApiResponse<Asignacion>> => {
+    const response = await api.get("/api/teachers/asignaciones/", { params })
+    return response.data
+  },
+
+  create: async (data: any): Promise<Asignacion> => {
+    const response = await api.post("/api/teachers/asignaciones/", data)
+    return response.data
+  },
+
+  delete: async (id: number): Promise<void> => {
+    await api.delete(`/api/teachers/asignaciones/${id}/`)
+  },
+}
+
+// Inscripciones API (NUEVO)
+export const inscripcionesApi = {
+  getAll: async (params?: any): Promise<ApiResponse<Inscripcion>> => {
+    const response = await api.get("/api/students/inscripciones/", { params })
+    return response.data
+  },
+
+  create: async (data: any): Promise<Inscripcion> => {
+    const response = await api.post("/api/students/inscripciones/", data)
+    return response.data
+  },
+
+  update: async (id: number, data: any): Promise<Inscripcion> => {
+    const response = await api.put(`/api/students/inscripciones/${id}/`, data)
+    return response.data
+  },
+
+  delete: async (id: number): Promise<void> => {
+    await api.delete(`/api/students/inscripciones/${id}/`)
+  },
+}
+
+// Rendimiento API (NUEVO)
+export const rendimientoApi = {
+  getAllStudents: async (params?: any): Promise<any> => {
+    const response = await api.get("/api/students/rendimiento/", { params })
+    return response.data
+  },
+
+  getByStudent: async (ci: string): Promise<RendimientoEstudiante> => {
+    const response = await api.get(`/api/students/estudiantes/${ci}/rendimiento/`)
+    return response.data
+  },
+}
+
+// Actualizo solo la parte relevante para criterios
+export const criteriosApi = {
+  getAll: async (params?: any): Promise<ApiResponse<Criterio>> => {
+    const response = await api.get("/api/courses/criterios/", { params })
+    return response.data
+  },
+
+  getById: async (id: string): Promise<Criterio> => {
+    const response = await api.get(`/api/courses/criterios/${id}/`)
+    return response.data
+  },
+
+  create: async (data: any): Promise<Criterio> => {
+    const response = await api.post("/api/courses/criterios/", data)
+    return response.data
+  },
+
+  update: async (id: string, data: any): Promise<Criterio> => {
+    const response = await api.put(`/api/courses/criterios/${id}/`, data)
+    return response.data
+  },
+
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/api/courses/criterios/${id}/`)
+  },
+}
+
+// Actualizo la parte de gradesApi para usar id_criterio
 export const gradesApi = {
   getAll: async (params?: any): Promise<ApiResponse<Grade>> => {
     const response = await api.get("/api/grades/notas/", { params })

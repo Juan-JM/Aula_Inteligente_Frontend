@@ -17,6 +17,9 @@ import {
   UsersRound,
   Calendar,
   Target,
+  LinkIcon,
+  FileText,
+  Award,
 } from "lucide-react"
 
 import {
@@ -76,6 +79,16 @@ const menuItems = [
     icon: Calendar,
   },
   {
+    title: "Asignaciones",
+    url: "/asignaciones",
+    icon: LinkIcon,
+  },
+  {
+    title: "Inscripciones",
+    url: "/inscripciones",
+    icon: FileText,
+  },
+  {
     title: "Calificaciones",
     url: "/grades",
     icon: BarChart3,
@@ -89,6 +102,11 @@ const menuItems = [
     title: "Participación",
     url: "/participation",
     icon: ClipboardList,
+  },
+  {
+    title: "Rendimiento",
+    url: "/rendimiento",
+    icon: Award,
   },
   {
     title: "Reportes",

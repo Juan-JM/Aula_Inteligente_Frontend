@@ -21,7 +21,9 @@ import { SettingsPage } from "@/pages/settings/SettingsPage"
 import { Toaster } from "@/components/ui/toaster"
 import { CamposPage } from "@/pages/campos/CamposPage"
 import { PeriodosPage } from "@/pages/periodos/PeriodosPage"
-
+import { AsignacionesPage } from "@/pages/asignaciones/AsignacionesPage"
+import { InscripcionesPage } from "@/pages/inscripciones/InscripcionesPage"
+import { RendimientoPage } from "@/pages/rendimiento/RendimientoPage"
 function App() {
   return (
     <ThemeProvider>
@@ -44,6 +46,9 @@ function App() {
                       <Route path="/subjects" element={<SubjectsPage />} />
                       <Route path="/campos" element={<CamposPage />} />
                       <Route path="/periodos" element={<PeriodosPage />} />
+                      <Route path="/asignaciones" element={<AsignacionesPage />} />
+                      <Route path="/inscripciones" element={<InscripcionesPage />} />
+                      <Route path="/rendimiento" element={<RendimientoPage />} />
                       <Route path="/roles" element={<RolesPage />} />
                       <Route path="/users" element={<UsersPage />} />
                       <Route path="/grades" element={<GradesPage />} />
